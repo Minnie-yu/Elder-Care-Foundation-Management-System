@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Elder Care Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Elder Care Donation and Management System{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Donors</div>
+            <div class="stat-value">
+                {% if total_donors is defined %}
+                    {{ total_donors }}
+                {% else %}
+                    {{ total }}
+                {% endif %}
+            </div>
+            <div class="stat-note">Current donor records in the system</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Current User</div>
+            <div class="stat-value" style="font-size: 22px;">
+                {{ current_user }}
+            </div>
+            <div class="stat-note">
+                {% if role_name is defined %}{{ role_name }}{% else %}Logged-in staff{% endif %}
+            </div>
+        </div>
+
+        {% if total_receivables is defined %}
+        <div class="stat-card">
+            <div class="stat-label">Total Receivables</div>
+            <div class="stat-value">{{ total_receivables }}</div>
+            <div class="stat-note">Donation / receivable records</div>
+        </div>
+        {% endif %}
+
+        {% if total_payment_amount is defined %}
+        <div class="stat-card">
+            <div class="stat-label">Total Payment Amount</div>
+            <div class="stat-value">${{ "%.2f"|format(total_payment_amount) }}</div>
+            <div class="stat-note">All recorded payments</div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Recent Donors</h2>
+                <p class="section-subtitle">Search and view donor records</p>
+            </div>
+
+            <form method="GET" action="/dashboard" class="inline-form">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search by donor name..."
+                    value="{{ search_query or '' }}"
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donors %}
+                    <tr>
+                        <td>
+                            <a class="table-link" href="/donor/{{ d.donor_id }}">
+                                {{ d.donor_name }}
+                            </a>
+                        </td>
+                        <td>{{ d.email or '-' }}</td>
+                        <td>{{ d.phone or '-' }}</td>
+                        <td>{{ d.city or '-' }}</td>
+                        <td>
+                            {% if d.donor_type %}
+                                <span class="tag tag-blue">{{ d.donor_type }}</span>
+                            {% else %}
+                                <span class="tag tag-gray">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center muted">No donors found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% if gender_stats is defined or donor_type_stats is defined %}
+<section class="section">
+    <div class="grid-2">
+        {% if gender_stats is defined %}
+        <div class="content-box">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Gender Distribution</h2>
+                    <p class="section-subtitle">Basic donor breakdown</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in gender_stats %}
+                        <tr>
+                            <td>{{ item.label }}</td>
+                            <td>{{ item.value }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="2" class="text-center muted">No data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if donor_type_stats is defined %}
+        <div class="content-box">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Donor Type Distribution</h2>
+                    <p class="section-subtitle">Individual vs corporate donors</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in donor_type_stats %}
+                        <tr>
+                            <td>{{ item.label }}</td>
+                            <td>{{ item.value }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="2" class="text-center muted">No data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,858 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Analytics Dashboard{% endblock %}
+{% block page_subtitle %}View key statistics, finance insights, charts, and a polished printable report{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .report-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .report-toolbar h2 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .report-toolbar p {
+        margin: 8px 0 0;
+        color: var(--muted);
+    }
+
+    .report-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .kpi-card {
+        background: var(--white);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 22px;
+        border: 1px solid var(--border);
+    }
+
+    .kpi-label {
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .kpi-value {
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 10px;
+        word-break: break-word;
+    }
+
+    .kpi-note {
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .chart-card {
+        background: var(--white);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .chart-card h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 750;
+    }
+
+    .chart-card p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+
+    .report-paper {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        padding: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .report-cover {
+        background: linear-gradient(135deg, #f7faff 0%, #eef4ff 100%);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .report-cover-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .report-badge {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary-dark);
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .report-main-title {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .report-main-subtitle {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+        max-width: 760px;
+        line-height: 1.6;
+    }
+
+    .report-meta-box {
+        min-width: 220px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+    }
+
+    .report-meta-row {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        line-height: 1.6;
+    }
+
+    .report-meta-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .report-section-title {
+        margin: 0 0 14px;
+        font-size: 20px;
+        font-weight: 780;
+    }
+
+    .print-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(240px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .print-summary-item {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        background: #fafcff;
+    }
+
+    .print-summary-item strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .report-table-card {
+        margin-top: 22px;
+    }
+
+    .report-table-title {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 760;
+    }
+
+    .print-note {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .divider-space {
+        height: 10px;
+    }
+
+    .print-chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .print-chart-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        background: #fbfcff;
+    }
+
+    .print-chart-card h3 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .print-bar-item {
+        margin-bottom: 12px;
+    }
+
+    .print-bar-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .print-bar-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: var(--text);
+    }
+
+    .print-bar-bg {
+        width: 100%;
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .print-bar-fill {
+        height: 100%;
+        width: 0;
+        background: var(--primary);
+        border-radius: 999px;
+        transition: width 0.4s ease;
+    }
+
+    @media (max-width: 1200px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, minmax(220px, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .kpi-grid,
+        .chart-grid,
+        .print-summary-grid,
+        .print-chart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .report-cover-top {
+            flex-direction: column;
+        }
+
+        .report-meta-box {
+            width: 100%;
+        }
+    }
+
+    @media print {
+        @page {
+            size: A4 portrait;
+            margin: 14mm;
+        }
+
+        body {
+            background: white !important;
+            color: black !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .sidebar,
+        .topbar,
+        .report-toolbar,
+        .btn,
+        .screen-only {
+            display: none !important;
+        }
+
+        .main-area,
+        .page-content,
+        .section {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .section {
+            margin-bottom: 16px !important;
+        }
+
+        .report-paper {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+
+        .report-cover {
+            background: #f5f7fb !important;
+            border: 1px solid #cfcfcf !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .print-summary-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            margin-bottom: 14px !important;
+        }
+
+        .print-summary-item {
+            background: white !important;
+            border: 1px solid #d9d9d9 !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .print-chart-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+        }
+
+        .print-chart-card {
+            background: white !important;
+            border: 1px solid #d4d4d4 !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .print-bar-bg {
+            background: #e0e0e0 !important;
+        }
+
+        .print-bar-fill {
+            background: #8caffb !important;
+        }
+
+        .table,
+        .table-wrap {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+
+        .table th,
+        .table td {
+            color: black !important;
+            border-color: #d2d2d2 !important;
+            font-size: 12px !important;
+        }
+
+        .report-main-title {
+            font-size: 24px !important;
+        }
+
+        .report-main-subtitle,
+        .report-meta-row,
+        .print-note {
+            font-size: 12px !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section screen-only">
+    <div class="report-toolbar">
+        <div>
+            <h2>Analytics Report</h2>
+            <p>Donor demographics, overlap analysis, donation trends, and sustainability overview</p>
+        </div>
+        <div class="report-actions">
+            <button type="button" class="btn btn-outline" onclick="window.print()">Print Report</button>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Donors</div>
+            <div class="kpi-value">{{ report_summary.total_donors }}</div>
+            <div class="kpi-note">All donor records</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Married Female Donors</div>
+            <div class="kpi-value">{{ report_summary.married_female_donors }}</div>
+            <div class="kpi-note">Gender + marital status segment</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Donors With Children</div>
+            <div class="kpi-value">{{ report_summary.donors_with_children }}</div>
+            <div class="kpi-note">Family donor segment</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Avg. Children per Donor</div>
+            <div class="kpi-value">{{ "%.2f"|format(report_summary.avg_children_per_donor or 0) }}</div>
+            <div class="kpi-note">Based on donor profiles</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Staff Also Donors</div>
+            <div class="kpi-value">{{ report_summary.staff_overlap_count }}</div>
+            <div class="kpi-note">Matched by email or name + phone</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Supplier Contacts Also Donors</div>
+            <div class="kpi-value">{{ report_summary.supplier_overlap_count }}</div>
+            <div class="kpi-note">Potential relationship overlap</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Total Donation Amount</div>
+            <div class="kpi-value">${{ "%.2f"|format(report_summary.total_receivable_amount or 0) }}</div>
+            <div class="kpi-note">All receivable records</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Estimated Retained 10%</div>
+            <div class="kpi-value">${{ "%.2f"|format(report_summary.retained_amount or 0) }}</div>
+            <div class="kpi-note">If 90% is transferred out</div>
+        </div>
+    </div>
+</section>
+
+<section class="section screen-only">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Finance & Sustainability</h2>
+                <p class="section-subtitle">Financial view aligned with your current TiDB schema</p>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Estimated 90% Program Transfer</div>
+                <div class="kpi-value">${{ "%.2f"|format(report_summary.estimated_transfer_amount or 0) }}</div>
+                <div class="kpi-note">Derived from total donations</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total Invoice Amount</div>
+                <div class="kpi-value">${{ "%.2f"|format(report_summary.total_invoice_amount or 0) }}</div>
+                <div class="kpi-note">All invoices issued</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Pending Invoices</div>
+                <div class="kpi-value">{{ report_summary.pending_invoices }}</div>
+                <div class="kpi-note">Invoices still pending</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Invoice-related Payments</div>
+                <div class="kpi-value">${{ "%.2f"|format(report_summary.invoice_payment_amount or 0) }}</div>
+                <div class="kpi-note">Payments linked to invoice_id</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Payroll / Reimbursements</div>
+                <div class="kpi-value">${{ "%.2f"|format(report_summary.payroll_payment_amount or 0) }}</div>
+                <div class="kpi-note">Payments linked to staff_id</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Sustainability Gap</div>
+                <div class="kpi-value">${{ "%.2f"|format(report_summary.sustainability_gap or 0) }}</div>
+                <div class="kpi-note">Retained 10% minus total payments</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section screen-only">
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>Donor Type Distribution</h3>
+            <p>Individual vs corporate donor composition.</p>
+            <div class="chart-wrap">
+                <canvas id="donorTypeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Gender Distribution</h3>
+            <p>Overview of donor gender composition.</p>
+            <div class="chart-wrap">
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Marital Status Distribution</h3>
+            <p>Donor marital profile breakdown.</p>
+            <div class="chart-wrap">
+                <canvas id="maritalStatusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Children Status Distribution</h3>
+            <p>Donors with children vs without children.</p>
+            <div class="chart-wrap">
+                <canvas id="childrenChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Monthly Donation Amount</h3>
+            <p>Monthly receivable trend from the Receivable table.</p>
+            <div class="chart-wrap">
+                <canvas id="monthlyReceivableChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Invoice Status</h3>
+            <p>Status breakdown across invoice records.</p>
+            <div class="chart-wrap">
+                <canvas id="invoiceStatusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Finance Comparison</h3>
+            <p>Donation, invoice, and payment comparison.</p>
+            <div class="chart-wrap">
+                <canvas id="financeComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Overlap Comparison</h3>
+            <p>Matched donor overlap with staff and supplier contacts.</p>
+            <div class="chart-wrap">
+                <canvas id="overlapChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="report-paper">
+        <div class="report-cover">
+            <div class="report-cover-top">
+                <div>
+                    <div class="report-badge">Printable Formal Report</div>
+                    <h1 class="report-main-title">Elder Care Management System Analytics & Sustainability Report</h1>
+                    <p class="report-main-subtitle">
+                        This report summarizes donor demographics, relationship overlap,
+                        donation trends, invoice and payment activity, and the estimated
+                        sustainability of the campaign under the 90% transfer assumption.
+                    </p>
+                </div>
+
+                <div class="report-meta-box">
+                    <div class="report-meta-row"><strong>Report Title:</strong> Analytics & Sustainability Report</div>
+                    <div class="report-meta-row"><strong>Module:</strong> Reports</div>
+                    <div class="report-meta-row"><strong>Status:</strong> Generated</div>
+                    <div class="report-meta-row"><strong>Print Ready:</strong> Yes</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="report-section-title">Executive Summary</h2>
+        <div class="print-summary-grid">
+            <div class="print-summary-item">
+                <strong>Total Donors</strong>
+                {{ report_summary.total_donors }}
+            </div>
+            <div class="print-summary-item">
+                <strong>Married Female Donors</strong>
+                {{ report_summary.married_female_donors }}
+            </div>
+            <div class="print-summary-item">
+                <strong>Donors With Children</strong>
+                {{ report_summary.donors_with_children }}
+            </div>
+            <div class="print-summary-item">
+                <strong>Staff Also Donors</strong>
+                {{ report_summary.staff_overlap_count }}
+            </div>
+            <div class="print-summary-item">
+                <strong>Supplier Contacts Also Donors</strong>
+                {{ report_summary.supplier_overlap_count }}
+            </div>
+            <div class="print-summary-item">
+                <strong>Total Donation Amount</strong>
+                ${{ "%.2f"|format(report_summary.total_receivable_amount or 0) }}
+            </div>
+        </div>
+
+        <h2 class="report-section-title">Finance Overview</h2>
+        <div class="print-summary-grid">
+            <div class="print-summary-item">
+                <strong>Estimated 90% Program Transfer</strong>
+                ${{ "%.2f"|format(report_summary.estimated_transfer_amount or 0) }}
+            </div>
+
+            <div class="print-summary-item">
+                <strong>Estimated Retained 10%</strong>
+                ${{ "%.2f"|format(report_summary.retained_amount or 0) }}
+            </div>
+
+            <div class="print-summary-item">
+                <strong>Total Invoice Amount</strong>
+                ${{ "%.2f"|format(report_summary.total_invoice_amount or 0) }}
+            </div>
+
+            <div class="print-summary-item">
+                <strong>Total Payment Amount</strong>
+                ${{ "%.2f"|format(report_summary.total_payment_amount or 0) }}
+            </div>
+
+            <div class="print-summary-item">
+                <strong>Outstanding Invoices</strong>
+                ${{ "%.2f"|format(report_summary.outstanding_invoice_amount or 0) }}
+            </div>
+
+            <div class="print-summary-item">
+                <strong>Sustainability Gap</strong>
+                ${{ "%.2f"|format(report_summary.sustainability_gap or 0) }}
+            </div>
+        </div>
+
+        <div class="report-table-card">
+            <h3 class="report-table-title">Analytics Summary Table</h3>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Donors</td>
+                            <td>{{ report_summary.total_donors }}</td>
+                            <td>All donor profiles in the database</td>
+                        </tr>
+                        <tr>
+                            <td>Married Female Donors</td>
+                            <td>{{ report_summary.married_female_donors }}</td>
+                            <td>Female donors whose marital_status is Married</td>
+                        </tr>
+                        <tr>
+                            <td>Donors With Children</td>
+                            <td>{{ report_summary.donors_with_children }}</td>
+                            <td>Donors whose has_child = 1</td>
+                        </tr>
+                        <tr>
+                            <td>Staff Also Donors</td>
+                            <td>{{ report_summary.staff_overlap_count }}</td>
+                            <td>Matched via email or strict name + phone rule</td>
+                        </tr>
+                        <tr>
+                            <td>Supplier Contacts Also Donors</td>
+                            <td>{{ report_summary.supplier_overlap_count }}</td>
+                            <td>Matched via email or strict name + phone rule</td>
+                        </tr>
+                        <tr>
+                            <td>Total Donation Amount</td>
+                            <td>${{ "%.2f"|format(report_summary.total_receivable_amount or 0) }}</td>
+                            <td>Total incoming donation amount from Receivable</td>
+                        </tr>
+                        <tr>
+                            <td>Estimated Transfer Amount (90%)</td>
+                            <td>${{ "%.2f"|format(report_summary.estimated_transfer_amount or 0) }}</td>
+                            <td>Derived transfer assumption</td>
+                        </tr>
+                        <tr>
+                            <td>Estimated Retained Amount (10%)</td>
+                            <td>${{ "%.2f"|format(report_summary.retained_amount or 0) }}</td>
+                            <td>Amount left for operating costs</td>
+                        </tr>
+                        <tr>
+                            <td>Total Payment Amount</td>
+                            <td>${{ "%.2f"|format(report_summary.total_payment_amount or 0) }}</td>
+                            <td>All outgoing payments in Payment</td>
+                        </tr>
+                        <tr>
+                            <td>Sustainability Gap</td>
+                            <td>${{ "%.2f"|format(report_summary.sustainability_gap or 0) }}</td>
+                            <td>Retained 10% minus total payments</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="print-note">
+            Note: The 90% transfer and retained 10% are currently derived values based on total donations,
+            because the database does not yet contain a dedicated transfer table.
+        </p>
+    </div>
+</section>
+
+<script id="donor-type-data" type="application/json">{{ donor_type_stats | tojson }}</script>
+<script id="gender-data" type="application/json">{{ gender_stats | tojson }}</script>
+<script id="marital-status-data" type="application/json">{{ marital_status_stats | tojson }}</script>
+<script id="children-data" type="application/json">{{ children_stats | tojson }}</script>
+<script id="monthly-data" type="application/json">{{ monthly_receivable_stats | tojson }}</script>
+<script id="invoice-status-data" type="application/json">{{ invoice_status_stats | tojson }}</script>
+<script id="finance-comparison-data" type="application/json">{{ finance_comparison_stats | tojson }}</script>
+<script id="overlap-data" type="application/json">{{ overlap_stats | tojson }}</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function readJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        try {
+            return JSON.parse(el.textContent);
+        } catch (error) {
+            console.error("Failed to parse JSON from", id, error);
+            return [];
+        }
+    }
+
+    const donorTypeStats = readJsonScript("donor-type-data");
+    const genderStats = readJsonScript("gender-data");
+    const maritalStatusStats = readJsonScript("marital-status-data");
+    const childrenStats = readJsonScript("children-data");
+    const monthlyStats = readJsonScript("monthly-data");
+    const invoiceStatusStats = readJsonScript("invoice-status-data");
+    const financeComparisonStats = readJsonScript("finance-comparison-data");
+    const overlapStats = readJsonScript("overlap-data");
+
+    function makeDoughnutChart(canvasId, stats, label) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !stats.length) return;
+
+        new Chart(canvas, {
+            type: "doughnut",
+            data: {
+                labels: stats.map(item => item.label),
+                datasets: [{
+                    label: label,
+                    data: stats.map(item => item.value),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+    }
+
+    function makeBarChart(canvasId, stats, label) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !stats.length) return;
+
+        new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: stats.map(item => item.label),
+                datasets: [{
+                    label: label,
+                    data: stats.map(item => item.value),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function makeLineChart(canvasId, stats, label) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !stats.length) return;
+
+        new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: stats.map(item => item.label),
+                datasets: [{
+                    label: label,
+                    data: stats.map(item => item.value),
+                    fill: false,
+                    tension: 0.3,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        makeDoughnutChart("donorTypeChart", donorTypeStats, "Donor Types");
+        makeDoughnutChart("genderChart", genderStats, "Gender");
+        makeDoughnutChart("maritalStatusChart", maritalStatusStats, "Marital Status");
+        makeDoughnutChart("childrenChart", childrenStats, "Children Status");
+        makeLineChart("monthlyReceivableChart", monthlyStats, "Donation Amount");
+        makeBarChart("invoiceStatusChart", invoiceStatusStats, "Invoice Status");
+        makeBarChart("financeComparisonChart", financeComparisonStats, "Amount");
+        makeBarChart("overlapChart", overlapStats, "Overlap Count");
+    });
+</script>
+{% endblock %}

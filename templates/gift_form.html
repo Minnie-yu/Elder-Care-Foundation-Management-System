@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Add Gift | Elder Care System{% endblock %}
+{% block page_title %}Add Gift{% endblock %}
+{% block page_subtitle %}Create a gift record and update linked inventory quantity{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Gift Form</h2>
+                <p class="section-subtitle">
+                    Add a gift, link it to inventory, and update stock quantity at the same time.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="card" style="margin-bottom: 16px;">
+            <p style="color: #dc2626; font-weight: 700;">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label" for="gift_name">Gift Name</label>
+                    <input type="text" id="gift_name" name="gift_name" placeholder="Enter gift name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="gift_category">Gift Category</label>
+                    <select id="gift_category" name="gift_category" required>
+                        <option value="">Select Category</option>
+                        <option value="Book">Book</option>
+                        <option value="Accessory">Accessory</option>
+                        <option value="Stationery">Stationery</option>
+                        <option value="Package">Package</option>
+                        <option value="Digital">Digital</option>
+                        <option value="Care">Care</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="gift_value">Gift Value</label>
+                    <input type="number" step="0.01" min="0" id="gift_value" name="gift_value" placeholder="Enter gift value" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="quantity_added">Quantity Added to Inventory</label>
+                    <input type="number" min="0" id="quantity_added" name="quantity_added" value="0">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="item_id">Linked Inventory Item</label>
+                    <select id="item_id" name="item_id">
+                        <option value="">Create a new inventory item automatically</option>
+                        {% for item in inventory_items %}
+                        <option value="{{ item.item_id }}">
+                            {{ item.item_name }}
+                            — Current Qty: {{ item.quantities }}
+                            {% if item.supplier_name and item.supplier_name != '-' %}
+                                — Supplier: {{ item.supplier_name }}
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="section-subtitle">
+                        Select an existing inventory item to update its quantity. Leave this blank to create a new inventory item.
+                    </p>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="supplier_id">Supplier for New Inventory Item</label>
+                    <select id="supplier_id" name="supplier_id">
+                        <option value="">Select supplier only when creating a new inventory item</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.supplier_id }}">{{ s.supplier_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="section-subtitle">
+                        This field is ignored when an existing inventory item is selected.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('gift_list') }}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">Create Gift</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

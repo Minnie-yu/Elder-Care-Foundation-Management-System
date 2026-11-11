@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Gift Detail | Elder Care System{% endblock %}
+{% block page_title %}Gift Detail{% endblock %}
+{% block page_subtitle %}View donor distribution records for a specific gift{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Gift Name</div>
+            <div class="stat-value">{{ gift_info.gift_name }}</div>
+            <div class="stat-note">{{ gift_info.gift_category or 'No category' }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Inventory Quantity</div>
+            <div class="stat-value">{{ gift_info.inventory_quantity }}</div>
+            <div class="stat-note">Current linked stock quantity</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Distributed</div>
+            <div class="stat-value">{{ total_distributed }}</div>
+            <div class="stat-note">Total quantity sent to donors</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{ gift_info.gift_name }}</h2>
+                <p class="section-subtitle">
+                    Gift ID: #{{ gift_info.gift_id }} |
+                    Value: ${{ '%.2f'|format(gift_info.gift_value) }} |
+                    Supplier: {{ gift_info.supplier_name or '-' }}
+                </p>
+                <p class="section-subtitle">
+                    Linked Inventory Item: {{ gift_info.item_name }} | Item ID: {{ gift_info.item_id }}
+                </p>
+            </div>
+            <div class="form-actions">
+    <a href="{{ url_for('gift_distribute') }}" class="btn btn-primary">Assign This Gift</a>
+    <a href="{{ url_for('gift_list') }}" class="btn btn-outline">Back to Gift List</a>
+
+    <form method="POST"
+          action="{{ url_for('gift_delete', gift_id=gift_info.gift_id) }}"
+          onsubmit="return confirm('Are you sure you want to delete this gift and all related distribution records?');"
+          style="display:inline;">
+        <button type="submit" class="btn btn-danger">Delete Gift</button>
+    </form>
+</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Donor Distribution Records</h2>
+                <p class="section-subtitle">Detailed records showing which donor received this gift</p>
+            </div>
+        </div>
+
+        {% if distribution_records %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Distribution ID</th>
+                        <th>Donor</th>
+                        <th>Donor Type</th>
+                        <th>Email</th>
+                        <th>City</th>
+                        <th>Date</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in distribution_records %}
+                    <tr>
+                        <td>#{{ r.distribution_id }}</td>
+                        <td>
+                            <strong>{{ r.donor_name }}</strong><br>
+                            <span class="muted">Donor ID: {{ r.donor_id }}</span>
+                        </td>
+                        <td>{{ r.donor_type or '-' }}</td>
+                        <td>{{ r.email or '-' }}</td>
+                        <td>{{ r.city or '-' }}</td>
+                        <td>{{ r.distribution_date or '-' }}</td>
+                        <td>{{ r.quantity }}</td>
+                        <td>{{ r.distribution_reason or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card">
+            <p class="muted">This gift has not been distributed to any donor yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

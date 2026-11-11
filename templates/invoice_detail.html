@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice Detail{% endblock %}
+{% block page_title %}Invoice Detail{% endblock %}
+{% block page_subtitle %}View invoice, item, event, and payment information{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Invoice #{{ invoice_info.invoice_id }}</h2>
+                <p class="section-subtitle">Invoice and related information</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/invoices" class="btn btn-outline">Back to Invoices</a>
+                <a href="/invoice/{{ invoice_info.invoice_id }}/edit" class="btn btn-secondary">Edit Invoice</a>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3 class="mb-12">Invoice Information</h3>
+                <p><strong>Issue Date:</strong> {{ invoice_info.issue_date }}</p>
+                <p><strong>Due Date:</strong> {{ invoice_info.due_date or '-' }}</p>
+                <p><strong>Quantity Billed:</strong> {{ invoice_info.quantity_billed }}</p>
+                <p><strong>Bill Amount:</strong> ${{ "%.2f"|format(invoice_info.bill_amount) }}</p>
+                <p><strong>Bill Type:</strong> {{ invoice_info.bill_type or '-' }}</p>
+                <p><strong>Status:</strong> {{ invoice_info.bill_status or '-' }}</p>
+            </div>
+
+            <div class="card">
+                <h3 class="mb-12">Linked Records</h3>
+                <p><strong>Item:</strong> {{ item_info.item_name if item_info else '-' }}</p>
+                <p><strong>Unit Cost:</strong> {% if item_info %}${{ "%.2f"|format(item_info.unit_cost) }}{% else %}-{% endif %}</p>
+                <p><strong>Event:</strong> {{ event_info.event_name if event_info else '-' }}</p>
+                <p><strong>City:</strong> {{ event_info.city if event_info else '-' }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Related Payments</h2>
+                <p class="section-subtitle">Payments linked to this invoice</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Payment Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in related_payments %}
+                    <tr>
+                        <td>#{{ p.payment_id }}</td>
+                        <td>{{ p.payment_date }}</td>
+                        <td>{{ p.payment_type }}</td>
+                        <td>${{ "%.2f"|format(p.amount) }}</td>
+                        <td>{{ p.payment_method }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center muted">No payment records linked to this invoice.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_mode == 'edit' %}Edit Staff{% else %}Add Staff{% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if form_mode == 'edit' %}Edit Staff Record{% else %}Add New Staff{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if form_mode == 'edit' %}Update information for {{ staff_info.staff_name }}{% else %}Enter details for the new staff or volunteer{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        max-width: 900px;
+        margin: 0 auto;
+        border: 1px solid #e5e7eb;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .form-control {
+        padding: 10px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        outline: none;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+    }
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 20px;
+    }
+    /* 全宽字段辅助类 */
+    .full-width {
+        grid-column: span 2;
+    }
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .full-width {
+            grid-column: span 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="form-container">
+        <!-- 保持 form_action 为空，因为默认提交到当前 URL (/new 或 /edit 路由) -->
+        <form method="POST" action="">
+            <div class="form-grid">
+                
+                <!-- 姓名 -->
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="staff_name" value="{{ staff_info.staff_name if staff_info else '' }}" class="form-control" required>
+                </div>
+
+                <!-- 职位 -->
+                <div class="form-group">
+                    <label class="form-label">Position *</label>
+                    <input type="text" name="position" value="{{ staff_info.position if staff_info else '' }}" class="form-control" required>
+                </div>
+
+                <!-- 邮箱 -->
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" value="{{ staff_info.email if staff_info else '' }}" class="form-control">
+                </div>
+
+                <!-- 电话 -->
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" name="phone" value="{{ staff_info.phone if staff_info else '' }}" class="form-control">
+                </div>
+
+                <!-- 员工类型 (全职、兼职等) -->
+                <div class="form-group">
+                    <label class="form-label">Staff Type</label>
+                    <select name="staff_type" class="form-control">
+                        <option value="">Select Type...</option>
+                        {% for stype in staff_type_options %}
+                        <option value="{{ stype }}" {% if staff_info and staff_info.staff_type == stype %}selected{% endif %}>{{ stype }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 薪酬状态 (带薪/志愿者) -->
+                <div class="form-group">
+                    <label class="form-label">Paid Status</label>
+                    <select name="is_paid" class="form-control">
+                        <!-- is_paid 在数据库中通常为 1/0 或者 true/false -->
+                        <option value="1" {% if staff_info and staff_info.is_paid %}selected{% endif %}>Paid Staff</option>
+                        <option value="0" {% if staff_info and not staff_info.is_paid %}selected{% endif %}>Volunteer</option>
+                    </select>
+                </div>
+
+                <!-- 薪水 -->
+                <div class="form-group">
+                    <label class="form-label">Salary</label>
+                    <input type="number" step="0.01" name="salary" value="{{ staff_info.salary if staff_info else '' }}" class="form-control" placeholder="e.g., 5000.00">
+                </div>
+
+                <!-- 生日 -->
+                <div class="form-group">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" name="date_of_birth" value="{{ staff_info.date_of_birth if staff_info else '' }}" class="form-control">
+                </div>
+
+                <!-- 性别 -->
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-control">
+                        <option value="">Select Gender...</option>
+                        {% for g in gender_options %}
+                        <option value="{{ g }}" {% if staff_info and staff_info.gender == g %}selected{% endif %}>{{ g }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 婚姻状况 -->
+                <div class="form-group">
+                    <label class="form-label">Marital Status</label>
+                    <select name="marital_status" class="form-control">
+                        <option value="">Select Status...</option>
+                        {% for m in marital_status_options %}
+                        <option value="{{ m }}" {% if staff_info and staff_info.marital_status == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 是否有孩子 -->
+                <div class="form-group">
+                    <label class="form-label">Has Children?</label>
+                    <select name="has_child" class="form-control">
+                        <option value="0" {% if staff_info and not staff_info.has_child %}selected{% endif %}>No</option>
+                        <option value="1" {% if staff_info and staff_info.has_child %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+
+                <!-- 孩子数量 -->
+                <div class="form-group">
+                    <label class="form-label">Number of Children</label>
+                    <input type="number" name="number_of_child" value="{{ staff_info.number_of_child if staff_info else '0' }}" class="form-control" min="0">
+                </div>
+
+                <!-- 城市 -->
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" value="{{ staff_info.city if staff_info else '' }}" class="form-control">
+                </div>
+
+                <!-- 国家 -->
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <input type="text" name="country" value="{{ staff_info.country if staff_info else '' }}" class="form-control">
+                </div>
+
+                <!-- 详细地址/Location -->
+                <div class="form-group full-width">
+                    <label class="form-label">Detailed Location / Address</label>
+                    <input type="text" name="location" value="{{ staff_info.location if staff_info else '' }}" class="form-control">
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a href="/staff" class="btn btn-outline" style="padding: 10px 20px;">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 30px;">
+                    {% if form_mode == 'edit' %}Save Changes{% else %}Add Staff{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

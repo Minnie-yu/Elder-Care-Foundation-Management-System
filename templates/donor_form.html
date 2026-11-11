@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_mode == 'edit' %}
+        Edit Donor
+    {% else %}
+        Add Donor
+    {% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if form_mode == 'edit' %}
+        Edit Donor
+    {% else %}
+        Add Donor
+    {% endif %}
+{% endblock %}
+
+{% block page_subtitle %}Create or update donor profile information{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">
+                    {% if form_mode == 'edit' %}
+                        Update Donor Information
+                    {% else %}
+                        Create New Donor
+                    {% endif %}
+                </h2>
+                <p class="section-subtitle">Fill in the donor details below</p>
+            </div>
+        </div>
+
+        <form method="POST" action="">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Donor Name</label>
+                    <input
+                        type="text"
+                        name="donor_name"
+                        value="{{ donor_info.donor_name if donor_info else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Donor Type</label>
+                    <select name="donor_type">
+                        <option value="">Select Donor Type</option>
+                        {% for donor_type in donor_type_options %}
+                        <option value="{{ donor_type }}"
+                            {% if donor_info and donor_info.donor_type == donor_type %}selected{% endif %}>
+                            {{ donor_type }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select name="gender">
+                        <option value="">Select Gender</option>
+                        {% for gender in gender_options %}
+                        <option value="{{ gender }}"
+                            {% if donor_info and donor_info.gender == gender %}selected{% endif %}>
+                            {{ gender }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Marital Status</label>
+                    <select name="marital_status">
+                        <option value="">Select Marital Status</option>
+                        {% for status in marital_status_options %}
+                        <option value="{{ status }}"
+                            {% if donor_info and donor_info.marital_status == status %}selected{% endif %}>
+                            {{ status }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Has Children</label>
+                    <select name="has_child" id="has_child">
+                        <option value="0" {% if not donor_info or donor_info.has_child == 0 %}selected{% endif %}>No</option>
+                        <option value="1" {% if donor_info and donor_info.has_child == 1 %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Number of Children</label>
+                    <input
+                        type="number"
+                        min="0"
+                        name="number_of_child"
+                        id="number_of_child"
+                        value="{% if donor_info and donor_info.number_of_child is not none %}{{ donor_info.number_of_child }}{% else %}0{% endif %}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Date of Birth</label>
+                    <input
+                        type="date"
+                        name="date_of_birth"
+                        value="{{ donor_info.date_of_birth if donor_info and donor_info.date_of_birth else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ donor_info.email if donor_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input
+                        type="text"
+                        name="phone"
+                        value="{{ donor_info.phone if donor_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input
+                        type="text"
+                        name="city"
+                        value="{{ donor_info.city if donor_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location / State</label>
+                    <input
+                        type="text"
+                        name="location"
+                        value="{{ donor_info.location if donor_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <input
+                        type="text"
+                        name="country"
+                        value="{{ donor_info.country if donor_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Feedback</label>
+                    <textarea name="feedback" placeholder="Optional donor feedback">{{ donor_info.feedback if donor_info else '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if form_mode == 'edit' %}
+                        Save Changes
+                    {% else %}
+                        Create Donor
+                    {% endif %}
+                </button>
+
+                <a href="/donors" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const hasChildSelect = document.getElementById("has_child");
+    const numberInput = document.getElementById("number_of_child");
+
+    function syncChildrenField() {
+        if (hasChildSelect.value === "1") {
+            numberInput.disabled = false;
+            if (numberInput.value === "") {
+                numberInput.value = 1;
+            }
+        } else {
+            numberInput.value = 0;
+            numberInput.disabled = true;
+        }
+    }
+
+    hasChildSelect.addEventListener("change", syncChildrenField);
+    syncChildrenField();
+});
+</script>
+{% endblock %}

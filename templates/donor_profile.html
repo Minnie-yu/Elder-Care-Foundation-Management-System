@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if donor_info is defined %}
+        {{ donor_info.donor_name }} - Donor Profile
+    {% else %}
+        {{ info.donor_name }} - Donor Profile
+    {% endif %}
+{% endblock %}
+
+{% block page_title %}Donor Profile{% endblock %}
+{% block page_subtitle %}View donor details, donation history, gifts, event participation, and overlap insights{% endblock %}
+
+{% block content %}
+{% set donor = donor_info if donor_info is defined else info %}
+
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Donations</div>
+            <div class="stat-value">{{ donor_metrics.total_donations or 0 }}</div>
+            <div class="stat-note">Donation records for this donor</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Donated</div>
+            <div class="stat-value">${{ "%.2f"|format(donor_metrics.total_donated or 0) }}</div>
+            <div class="stat-note">Accumulated donation amount</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Events Joined</div>
+            <div class="stat-value">{{ donor_metrics.total_events or 0 }}</div>
+            <div class="stat-note">Event participation count</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Gifts Received</div>
+            <div class="stat-value">{{ donor_metrics.total_gifts or 0 }}</div>
+            <div class="stat-note">Total distributed quantity</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title mb-12">
+                    {{ donor.donor_name }}
+                    {% if donor.donor_type %}
+                        <span class="tag tag-blue" style="margin-left: 8px;">{{ donor.donor_type }}</span>
+                    {% endif %}
+                </h2>
+                <p class="section-subtitle">Basic donor information</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="/donors" class="btn btn-outline">Back to Donor List</a>
+                {% if donor.donor_id is defined %}
+                <a href="/donor/{{ donor.donor_id }}/edit" class="btn btn-primary">Edit Donor</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3 class="mb-12">Contact Details</h3>
+                <p><strong>Email:</strong> {{ donor.email or '-' }}</p>
+                <p><strong>Phone:</strong> {{ donor.phone or '-' }}</p>
+                <p><strong>City:</strong> {{ donor.city or '-' }}</p>
+                <p><strong>Location / State:</strong> {{ donor.location or '-' }}</p>
+                <p><strong>Country:</strong> {{ donor.country or '-' }}</p>
+            </div>
+
+            <div class="card">
+                <h3 class="mb-12">Demographic Details</h3>
+                <p><strong>Gender:</strong> {{ donor.gender or '-' }}</p>
+                <p><strong>Date of Birth:</strong> {{ donor.date_of_birth or '-' }}</p>
+                <p><strong>Marital Status:</strong> {{ donor.marital_status or '-' }}</p>
+                <p><strong>Has Children:</strong>
+                    {% if donor.has_child == 1 %}
+                        Yes
+                    {% elif donor.has_child == 0 %}
+                        No
+                    {% else %}
+                        -
+                    {% endif %}
+                </p>
+                <p><strong>Number of Children:</strong>
+                    {% if donor.number_of_child is not none %}
+                        {{ donor.number_of_child }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </p>
+                <p><strong>Feedback:</strong> {{ donor.feedback or '-' }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if matched_staff or matched_suppliers %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Relationship Overlap Insights</h2>
+                <p class="section-subtitle">Possible role overlap based on email or strict personal match</p>
+            </div>
+        </div>
+
+        {% if matched_staff %}
+        <div class="card" style="margin-bottom: 16px;">
+            <h3 class="mb-12">Matched Staff Records</h3>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Staff ID</th>
+                            <th>Staff Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in matched_staff %}
+                        <tr>
+                            <td>#{{ s.staff_id }}</td>
+                            <td>{{ s.staff_name }}</td>
+                            <td>{{ s.email or '-' }}</td>
+                            <td>{{ s.phone or '-' }}</td>
+                            <td>{{ s.position or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if matched_suppliers %}
+        <div class="card">
+            <h3 class="mb-12">Matched Supplier Contact Records</h3>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Supplier ID</th>
+                            <th>Supplier Name</th>
+                            <th>Contact Person</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Supplier Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in matched_suppliers %}
+                        <tr>
+                            <td>#{{ s.supplier_id }}</td>
+                            <td>{{ s.supplier_name }}</td>
+                            <td>{{ s.contact_person or '-' }}</td>
+                            <td>{{ s.email or '-' }}</td>
+                            <td>{{ s.phone_number or '-' }}</td>
+                            <td>{{ s.supplier_type or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Donation History</h2>
+                <p class="section-subtitle">Receivable records for this donor</p>
+            </div>
+        </div>
+
+        {% set donation_rows = receivables if receivables is defined else history %}
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Frequency</th>
+                        <th>Receipt No.</th>
+                        <th>Receipt Issue Date</th>
+                        <th>Donation Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donation_rows %}
+                    <tr>
+                        <td>{{ d.donation_date or '-' }}</td>
+                        <td>${{ "%.2f"|format(d.amount or 0) }}</td>
+                        <td>{{ d.payment_method or '-' }}</td>
+                        <td>{{ d.donation_frequency or '-' }}</td>
+                        <td>{{ d.receipt_number or '-' }}</td>
+                        <td>{{ d.receipt_issue_date or '-' }}</td>
+                        <td>
+                            {% if d.is_event_related == 1 %}
+                                <span class="tag tag-blue">Event-related</span>
+                            {% else %}
+                                <span class="tag tag-gray">Self-initiated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center muted">No donation records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Event Participation</h2>
+                <p class="section-subtitle">Events associated with this donor</p>
+            </div>
+        </div>
+
+        {% set event_rows = event_participations if event_participations is defined else events %}
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in event_rows %}
+                    <tr>
+                        <td>{{ e.event_name }}</td>
+                        <td>
+                            {% if e.event_date is defined %}
+                                {{ e.event_date }}
+                            {% else %}
+                                {{ e.participation_date }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if e.participation_status is defined and e.participation_status %}
+                                <span class="tag tag-green">{{ e.participation_status }}</span>
+                            {% else %}
+                                <span class="tag tag-gray">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center muted">No event records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{% if gift_distributions is defined %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Gift Distribution History</h2>
+                <p class="section-subtitle">Gifts received by this donor</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Gift Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in gift_distributions %}
+                    <tr>
+                        <td>{{ g.gift_name or '-' }}</td>
+                        <td>{{ g.gift_category or '-' }}</td>
+                        <td>{{ g.quantity }}</td>
+                        <td>{{ g.distribution_date }}</td>
+                        <td>{{ g.distribution_reason or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center muted">No gift distribution records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

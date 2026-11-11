@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Receivables{% endblock %}
+{% block page_title %}Receivables{% endblock %}
+{% block page_subtitle %}Manage donor donation records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Donation Records</h2>
+            <p class="section-subtitle">Track amount, date, payment method, and whether the donation was event-related.</p>
+        </div>
+        <a href="{{ url_for('receivable_new') }}" class="btn btn-primary">Add Receivable</a>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card mb-24">
+        <form method="get" class="toolbar">
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search donor, receipt number, or payment method"
+                value="{{ search_query }}"
+                style="max-width: 320px;"
+            >
+
+            <select name="event_related" class="form-control" style="max-width: 220px;">
+                <option value="" {% if event_related_filter == '' %}selected{% endif %}>All Donations</option>
+                <option value="1" {% if event_related_filter == '1' %}selected{% endif %}>Event-related</option>
+                <option value="0" {% if event_related_filter == '0' %}selected{% endif %}>Self-initiated</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('receivable_list') }}" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Donor</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        <th>Payment Method</th>
+                        <th>Receipt No.</th>
+                        <th>Receipt Issue Date</th>
+                        <th>Donation Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in receivables %}
+                    <tr>
+                        <td>{{ r.receivable_id }}</td>
+                        <td>
+                            <a class="table-link" href="{{ url_for('donor_profile', donor_id=r.donor_id) }}">
+                                {{ r.donor_name }}
+                            </a>
+                        </td>
+                        <td>{{ r.donation_date or '-' }}</td>
+                        <td>${{ '%.2f'|format(r.amount or 0) }}</td>
+                        <td>{{ r.donation_frequency or '-' }}</td>
+                        <td>{{ r.payment_method or '-' }}</td>
+                        <td>{{ r.receipt_number or '-' }}</td>
+                        <td>{{ r.receipt_issue_date or '-' }}</td>
+                        <td>
+                            {% if r.is_event_related %}
+                                <span class="badge badge-blue">Event-related</span>
+                            {% else %}
+                                <span class="badge badge-gray">Self-initiated</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('receivable_edit', receivable_id=r.receivable_id) }}" class="btn btn-sm btn-outline">Edit</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="muted text-center">No receivable records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

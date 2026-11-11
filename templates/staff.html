@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Directory{% endblock %}
+{% block page_title %}Staff Directory{% endblock %}
+{% block page_subtitle %}View, search, and manage staff and volunteer records{% endblock %}
+
+{% block content %}
+<section class="section">
+    
+    <!-- 搜索与操作栏 (与 Donor 页面保持相同风格) -->
+    <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <form method="GET" action="/staff" class="search-form" style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" name="search" placeholder="Search name, email, phone..." value="{{ search_query or '' }}">
+            
+            <select name="staff_type">
+                <option value="">All Types</option>
+                {% for stype in staff_type_options %}
+                    <option value="{{ stype }}" {% if staff_type_filter == stype %}selected{% endif %}>{{ stype }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="btn btn-primary">Search / Filter</button>
+            
+            <a href="/staff" class="btn btn-outline">Clear</a>
+            
+        </form>
+        
+        <div class="action-buttons" style="display: flex; gap: 10px;">
+            <a href="/staff/new" class="btn btn-success">+ Add Staff</a>
+            <!-- 调用万能导出接口导出员工数据 -->
+            <a href="/export/staff" class="btn btn-secondary">Export CSV</a>
+        </div>
+    </div>
+
+    <!-- 数据表格区域 (加上了白色的 card 背景) -->
+    <div class="card table-container" style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div class="table-wrap">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding-bottom: 10px;">Staff ID</th>
+                        <th style="padding-bottom: 10px;">Name</th>
+                        <th style="padding-bottom: 10px;">Email</th>
+                        <th style="padding-bottom: 10px;">Position</th>
+                        <th style="padding-bottom: 10px;">Type</th>
+                        <th style="padding-bottom: 10px;">Status</th>
+                        <th style="padding-bottom: 10px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 修改点：这里把 staff 改成了 staff_rows，数据就能出来了！ -->
+                    {% for s in staff_rows %}
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 12px 0;">{{ s.staff_id }}</td>
+                        <td class="font-medium" style="padding: 12px 0;">{{ s.staff_name }}</td>
+                        <td style="padding: 12px 0;">{{ s.email or '-' }}</td>
+                        <td style="padding: 12px 0;">{{ s.position or '-' }}</td>
+                        <td style="padding: 12px 0;">
+                            {% if s.staff_type %}
+                                <span class="tag tag-blue">{{ s.staff_type }}</span>
+                            {% else %}
+                                <span class="tag tag-gray">-</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px 0;">
+                            {% if s.is_paid %}
+                                <span class="tag tag-green" style="background-color: #10b981; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">Paid</span>
+                            {% else %}
+                                <span class="tag tag-yellow" style="background-color: #f59e0b; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">Volunteer</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- 修改点：加上了 Edit 和 Details 的操作按钮 -->
+                        <td style="padding: 12px 0;">
+                            <div class="inline-form" style="display: flex; gap: 8px;">
+                                <a href="/staff/{{ s.staff_id }}" class="btn btn-sm btn-outline">Details</a>
+                                <a href="/staff/{{ s.staff_id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center muted" style="text-align: center; padding: 30px;">No staff records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

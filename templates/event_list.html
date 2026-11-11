@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Event Management{% endblock %}
+{% block page_title %}Event Management{% endblock %}
+{% block page_subtitle %}View, search, and manage campaign events{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">All Events</h2>
+                <p class="section-subtitle">Manage event records and participation arrangements</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="/event/new" class="btn btn-primary">Add Event</a>
+                <a href="/export/events" class="btn btn-secondary">Export CSV</a>
+            </div>
+        </div>
+
+        <div class="section mb-24">
+            <form method="GET" action="/events" class="inline-form">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search by event name..."
+                    value="{{ search_query or '' }}"
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+
+                
+                <a href="/events" class="btn btn-outline">Clear</a>
+                
+            </form>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Street</th>
+                        <th>City</th>
+                        <th>Location</th>
+                        <th>Country</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in events %}
+                    <tr>
+                        <td>
+                            <a class="table-link" href="/event/{{ e.event_id }}">
+                                {{ e.event_name }}
+                            </a>
+                        </td>
+                        <td>{{ e.event_date }}</td>
+                        <td>{{ e.event_street or '-' }}</td>
+                        <td>{{ e.city or '-' }}</td>
+                        <td>{{ e.location or '-' }}</td>
+                        <td>{{ e.country or '-' }}</td>
+                        <td>
+                            <div class="inline-form">
+                                <a href="/event/{{ e.event_id }}" class="btn btn-sm btn-outline">Details</a>
+                                <a href="/event/{{ e.event_id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center muted">No event records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

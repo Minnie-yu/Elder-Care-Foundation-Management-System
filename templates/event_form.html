@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form_mode == 'edit' %}
+        Edit Event
+    {% else %}
+        Add Event
+    {% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if form_mode == 'edit' %}
+        Edit Event
+    {% else %}
+        Add Event
+    {% endif %}
+{% endblock %}
+
+{% block page_subtitle %}Create or update event information{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">
+                    {% if form_mode == 'edit' %}
+                        Update Event
+                    {% else %}
+                        Create New Event
+                    {% endif %}
+                </h2>
+                <p class="section-subtitle">Fill in the event details below</p>
+            </div>
+        </div>
+
+        <form method="POST" action="">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label">Event Name</label>
+                    <input
+                        type="text"
+                        name="event_name"
+                        value="{{ event_info.event_name if event_info else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Event Date</label>
+                    <input
+                        type="date"
+                        name="event_date"
+                        value="{{ event_info.event_date if event_info else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Street</label>
+                    <input
+                        type="text"
+                        name="event_street"
+                        value="{{ event_info.event_street if event_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input
+                        type="text"
+                        name="city"
+                        value="{{ event_info.city if event_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input
+                        type="text"
+                        name="location"
+                        value="{{ event_info.location if event_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <input
+                        type="text"
+                        name="country"
+                        value="{{ event_info.country if event_info else '' }}"
+                    >
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if form_mode == 'edit' %}
+                        Save Changes
+                    {% else %}
+                        Create Event
+                    {% endif %}
+                </button>
+                <a href="/events" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

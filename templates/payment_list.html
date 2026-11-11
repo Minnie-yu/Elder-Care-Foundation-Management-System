@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block page_subtitle %}View and manage salary, reimbursement, and invoice settlement records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Payments</div>
+            <div class="stat-value">{{ payments|length if payments else 0 }}</div>
+            <div class="stat-note">Payment records currently displayed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Amount</div>
+            <div class="stat-value">
+                ${{ "%.2f"|format(payments | sum(attribute='amount')) if payments else "0.00" }}
+            </div>
+            <div class="stat-note">Displayed payment total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Module</div>
+            <div class="stat-value">Active</div>
+            <div class="stat-note">Payment management is available</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Search & Filter</h2>
+                <p class="section-subtitle">Search by payment type, invoice, or staff</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/payment/new" class="btn btn-primary">+ Add Payment</a>
+                <!-- 新增：导出支付记录 CSV -->
+                <a href="/export/payments" class="btn btn-secondary">Export CSV</a>
+            </div>
+            
+        </div>
+
+        <form method="GET" action="/payments" class="toolbar">
+            <input type="text" name="search" placeholder="Search payments..." value="{{ search_query or '' }}">
+            <select name="payment_type">
+                <option value="">All Payment Types</option>
+                <option value="Salary" {% if payment_type_filter == 'Salary' %}selected{% endif %}>Salary</option>
+                <option value="Invoice Settlement" {% if payment_type_filter == 'Invoice Settlement' %}selected{% endif %}>Invoice Settlement</option>
+                <option value="Volunteer Reimbursement" {% if payment_type_filter == 'Volunteer Reimbursement' %}selected{% endif %}>Volunteer Reimbursement</option>
+                <option value="Reimbursement" {% if payment_type_filter == 'Reimbursement' %}selected{% endif %}>Reimbursement</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="/payments" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Payment Date</th>
+                        <th>Payment Type</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Invoice</th>
+                        <th>Staff</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>#{{ p.payment_id }}</td>
+                        <td>{{ p.payment_date }}</td>
+                        <td>{{ p.payment_type }}</td>
+                        <td>${{ "%.2f"|format(p.amount) }}</td>
+                        <td>{{ p.payment_method }}</td>
+                        <td>{{ p.invoice_label }}</td>
+                        <td>{{ p.staff_name }}</td>
+                        <td>
+                            <a href="/payment/{{ p.payment_id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center muted">No payment records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

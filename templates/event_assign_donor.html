@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Donor{% endblock %}
+{% block page_title %}Assign Donor{% endblock %}
+{% block page_subtitle %}Add donors to this event and manage participation status{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{ event_info.event_name }}</h2>
+                <p class="section-subtitle">Assign donor participation</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="/event/{{ event_info.event_id }}" class="btn btn-outline">Back to Event</a>
+            </div>
+        </div>
+
+        <form method="POST" action="" class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Select Donor</label>
+                <select name="donor_id" required>
+                    <option value="">Choose a donor</option>
+                    {% for d in available_donors %}
+                    <option value="{{ d.donor_id }}">{{ d.donor_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Participation Status</label>
+                <select name="participation_status" required>
+                    {% for status in participation_status_options %}
+                    <option value="{{ status }}">{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <button type="submit" class="btn btn-primary">Add Donor</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Assigned Donors</h2>
+                <p class="section-subtitle">Current donor participation records</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Donor Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in event_donors %}
+                    <tr>
+                        <td>{{ d.donor_name }}</td>
+                        <td>{{ d.email or '-' }}</td>
+                        <td>{{ d.phone or '-' }}</td>
+                        <td>{{ d.city or '-' }}</td>
+                        <td><span class="tag tag-blue">{{ d.participation_status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center muted">No donors assigned yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

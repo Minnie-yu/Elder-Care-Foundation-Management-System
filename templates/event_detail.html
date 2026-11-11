@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Event Detail{% endblock %}
+{% block page_title %}Event Detail{% endblock %}
+{% block page_subtitle %}View event information, donor participation, and staff assignments{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{{ event_info.event_name }}</h2>
+                <p class="section-subtitle">Basic event information</p>
+            </div>
+
+            <div class="topbar-actions">
+                <a href="/events" class="btn btn-outline">Back to Events</a>
+                <a href="/event/{{ event_info.event_id }}/edit" class="btn btn-secondary">Edit Event</a>
+                <a href="/event/{{ event_info.event_id }}/assign-donor" class="btn btn-primary">Assign Donor</a>
+                <a href="/event/{{ event_info.event_id }}/assign-staff" class="btn btn-primary">Assign Staff</a>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3 class="mb-12">Event Information</h3>
+                <p><strong>Event Name:</strong> {{ event_info.event_name }}</p>
+                <p><strong>Event Date:</strong> {{ event_info.event_date }}</p>
+                <p><strong>Street:</strong> {{ event_info.event_street or '-' }}</p>
+            </div>
+
+            <div class="card">
+                <h3 class="mb-12">Location Information</h3>
+                <p><strong>City:</strong> {{ event_info.city or '-' }}</p>
+                <p><strong>Location:</strong> {{ event_info.location or '-' }}</p>
+                <p><strong>Country:</strong> {{ event_info.country or '-' }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Participating Donors</h2>
+                <p class="section-subtitle">Donors linked to this event</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Donor Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Donor Type</th>
+                        <th>Participation Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in event_donors %}
+                    <tr>
+                        <td>{{ d.donor_name }}</td>
+                        <td>{{ d.email or '-' }}</td>
+                        <td>{{ d.phone or '-' }}</td>
+                        <td>{{ d.city or '-' }}</td>
+                        <td>{{ d.donor_type or '-' }}</td>
+                        <td>
+                            {% if d.participation_status == 'Attended' %}
+                                <span class="tag tag-green">{{ d.participation_status }}</span>
+                            {% elif d.participation_status == 'Registered' %}
+                                <span class="tag tag-blue">{{ d.participation_status }}</span>
+                            {% else %}
+                                <span class="tag tag-gray">{{ d.participation_status or '-' }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center muted">No donor records found for this event.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Assigned Staff</h2>
+                <p class="section-subtitle">Staff members responsible for this event</p>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Tasks</th>
+                        <th>Hours Worked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in event_staff %}
+                    <tr>
+                        <td>{{ s.staff_name }}</td>
+                        <td>{{ s.email or '-' }}</td>
+                        <td>{{ s.position or '-' }}</td>
+                        <td>{{ s.tasks or '-' }}</td>
+                        <td>{{ s.hours_worked or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center muted">No staff records found for this event.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

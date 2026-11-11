@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elder Care - Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e2edff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 360px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px 35px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 28px;
+            color: #222;
+        }
+        .msg {
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #d9d9d9;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #8caffb;
+        }
+        button {
+            width: 100%;
+            border: none;
+            background: #8caffb;
+            color: white;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #7199f9;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+            color: #666;
+        }
+        .footer a {
+            color: #5b88f7;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Elder Care System</h1>
+
+        {% if error %}
+            <div class="msg error">{{ error }}</div>
+        {% endif %}
+
+        {% if success %}
+            <div class="msg success">{{ success }}</div>
+        {% endif %}
+
+        <form method="POST" action="/">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+
+        <div class="footer">
+            Don’t have an account?
+            <a href="/signup">Sign Up</a>
+        </div>
+    </div>
+</body>
+</html>

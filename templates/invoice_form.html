@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form_mode == 'edit' %}Edit Invoice{% else %}Add Invoice{% endif %}{% endblock %}
+{% block page_title %}{% if form_mode == 'edit' %}Edit Invoice{% else %}Add Invoice{% endif %}{% endblock %}
+{% block page_subtitle %}Create or update invoice information{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <form method="POST" action="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Inventory Item</label>
+                    <select name="item_id" required>
+                        <option value="">Select Item</option>
+                        {% for item in inventory_items %}
+                        <option value="{{ item.item_id }}" {% if invoice_info and invoice_info.item_id == item.item_id %}selected{% endif %}>
+                            {{ item.item_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Event (Optional)</label>
+                    <select name="event_id">
+                        <option value="">No Event</option>
+                        {% for event in events %}
+                        <option value="{{ event.event_id }}" {% if invoice_info and invoice_info.event_id == event.event_id %}selected{% endif %}>
+                            {{ event.event_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Issue Date</label>
+                    <input type="date" name="issue_date" value="{{ invoice_info.issue_date if invoice_info else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="due_date" value="{{ invoice_info.due_date if invoice_info else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Quantity Billed</label>
+                    <input type="number" name="quantity_billed" value="{{ invoice_info.quantity_billed if invoice_info else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bill Amount</label>
+                    <input type="number" step="0.01" name="bill_amount" value="{{ invoice_info.bill_amount if invoice_info else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bill Type</label>
+                    <input type="text" name="bill_type" value="{{ invoice_info.bill_type if invoice_info else '' }}" placeholder="e.g. Printing Invoice">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bill Status</label>
+                    <select name="bill_status" required>
+                        {% for status in bill_status_options %}
+                        <option value="{{ status }}" {% if invoice_info and invoice_info.bill_status == status %}selected{% endif %}>
+                            {{ status }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if form_mode == 'edit' %}Save Changes{% else %}Create Invoice{% endif %}
+                </button>
+                <a href="/invoices" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

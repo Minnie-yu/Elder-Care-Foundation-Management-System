@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form_mode == 'edit' %}Edit Payment{% else %}Add Payment{% endif %}{% endblock %}
+{% block page_title %}{% if form_mode == 'edit' %}Edit Payment{% else %}Add Payment{% endif %}{% endblock %}
+{% block page_subtitle %}Create or update payment records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="content-box">
+        <form method="POST" action="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Invoice (Optional)</label>
+                    <select name="invoice_id">
+                        <option value="">No Invoice</option>
+                        {% for inv in invoice_list %}
+                        <option value="{{ inv.invoice_id }}" {% if payment_info and payment_info.invoice_id == inv.invoice_id %}selected{% endif %}>
+                            Invoice #{{ inv.invoice_id }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Staff (Optional)</label>
+                    <select name="staff_id">
+                        <option value="">No Staff</option>
+                        {% for s in staff_list %}
+                        <option value="{{ s.staff_id }}" {% if payment_info and payment_info.staff_id == s.staff_id %}selected{% endif %}>
+                            {{ s.staff_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Date</label>
+                    <input type="date" name="payment_date" value="{{ payment_info.payment_date if payment_info else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Type</label>
+                    <select name="payment_type" required>
+                        {% for payment_type in payment_type_options %}
+                        <option value="{{ payment_type }}" {% if payment_info and payment_info.payment_type == payment_type %}selected{% endif %}>
+                            {{ payment_type }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" step="0.01" name="amount" value="{{ payment_info.amount if payment_info else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select name="payment_method" required>
+                        {% for method in payment_method_options %}
+                        <option value="{{ method }}" {% if payment_info and payment_info.payment_method == method %}selected{% endif %}>
+                            {{ method }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-24">
+                <p class="muted">
+                    For salary or reimbursement, usually select a staff member.  
+                    For invoice settlement, usually select an invoice.
+                </p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if form_mode == 'edit' %}Save Changes{% else %}Create Payment{% endif %}
+                </button>
+                <a href="/payments" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

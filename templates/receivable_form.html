@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form_mode == 'edit' %}Edit Receivable{% else %}Add Receivable{% endif %}{% endblock %}
+{% block page_title %}{% if form_mode == 'edit' %}Edit Receivable{% else %}Add Receivable{% endif %}{% endblock %}
+{% block page_subtitle %}Record donor donation information{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="card">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">{% if form_mode == 'edit' %}Update Donation Record{% else %}Create Donation Record{% endif %}</h2>
+                <p class="section-subtitle">A donation can be marked as event-related without linking to a specific event.</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger mb-18">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Donor</label>
+                    <select name="donor_id" class="form-control" required>
+                        <option value="">Select a donor</option>
+                        {% for donor in donors %}
+                        {% set current_donor_id = receivable_info.donor_id if receivable_info else selected_donor_id %}
+                        <option value="{{ donor.donor_id }}"
+                            {% if current_donor_id == donor.donor_id %}selected{% endif %}>
+                            {{ donor.donor_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Donation Date</label>
+                    <input
+                        type="date"
+                        name="donation_date"
+                        class="form-control"
+                        value="{{ receivable_info.donation_date if receivable_info else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        name="amount"
+                        class="form-control"
+                        value="{{ receivable_info.amount if receivable_info else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Donation Frequency</label>
+                    <select name="donation_frequency" class="form-control">
+                        <option value="">Select frequency</option>
+                        {% for option in donation_frequency_options %}
+                        <option value="{{ option }}"
+                            {% if receivable_info and receivable_info.donation_frequency == option %}selected{% endif %}>
+                            {{ option }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select name="payment_method" class="form-control">
+                        <option value="">Select payment method</option>
+                        {% for option in receivable_payment_method_options %}
+                        <option value="{{ option }}"
+                            {% if receivable_info and receivable_info.payment_method == option %}selected{% endif %}>
+                            {{ option }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Receipt Number</label>
+                    <input
+                        type="text"
+                        name="receipt_number"
+                        class="form-control"
+                        value="{{ receivable_info.receipt_number if receivable_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Receipt Issue Date</label>
+                    <input
+                        type="date"
+                        name="receipt_issue_date"
+                        class="form-control"
+                        value="{{ receivable_info.receipt_issue_date if receivable_info else '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Donation Type</label>
+                    <select name="is_event_related" class="form-control">
+                        <option value="0"
+                            {% if not receivable_info or receivable_info.is_event_related == 0 %}selected{% endif %}>
+                            Self-initiated
+                        </option>
+                        <option value="1"
+                            {% if receivable_info and receivable_info.is_event_related == 1 %}selected{% endif %}>
+                            Event-related
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if form_mode == 'edit' %}Save Changes{% else %}Create Record{% endif %}
+                </button>
+
+                {% if receivable_info %}
+                    <a href="{{ url_for('donor_profile', donor_id=receivable_info.donor_id) }}" class="btn btn-outline">Back to Donor</a>
+                {% else %}
+                    <a href="{{ url_for('receivable_list') }}" class="btn btn-outline">Back to Receivables</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

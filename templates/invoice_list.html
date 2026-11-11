@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Invoices{% endblock %}
+{% block page_title %}Invoices{% endblock %}
+{% block page_subtitle %}View, search, and manage invoice records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Invoices</div>
+            <div class="stat-value">{{ invoices|length if invoices else 0 }}</div>
+            <div class="stat-note">Invoices currently displayed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Invoices</div>
+            <div class="stat-value">{{ invoices | selectattr('bill_status', 'equalto', 'Pending') | list | length }}</div>
+            <div class="stat-note">Invoices awaiting settlement</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Module</div>
+            <div class="stat-value">Active</div>
+            <div class="stat-note">Invoice management is available</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Search & Filter</h2>
+                <p class="section-subtitle">Search invoice ID, item name, bill type, or event name</p>
+            </div>
+            <div class="topbar-actions">
+                <a href="/invoice/new" class="btn btn-primary">Add Invoice</a>
+            </div>
+        </div>
+
+        <form method="GET" action="/invoices" class="toolbar">
+            <input type="text" name="search" placeholder="Search invoices..." value="{{ search_query or '' }}">
+            <select name="bill_status">
+                <option value="">All Statuses</option>
+                <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Overdue" {% if status_filter == 'Overdue' %}selected{% endif %}>Overdue</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="/invoices" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="content-box">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Item</th>
+                        <th>Event</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Bill Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in invoices %}
+                    <tr>
+                        <td>#{{ i.invoice_id }}</td>
+                        <td>{{ i.item_name }}</td>
+                        <td>{{ i.event_name }}</td>
+                        <td>{{ i.issue_date }}</td>
+                        <td>{{ i.due_date or '-' }}</td>
+                        <td>${{ "%.2f"|format(i.bill_amount) }}</td>
+                        <td>{{ i.bill_type or '-' }}</td>
+                        <td>
+                            {% if i.bill_status == 'Paid' %}
+                                <span class="tag tag-green">Paid</span>
+                            {% elif i.bill_status == 'Pending' %}
+                                <span class="tag tag-yellow">Pending</span>
+                            {% else %}
+                                <span class="tag tag-red">{{ i.bill_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="inline-form">
+                                <a href="/invoice/{{ i.invoice_id }}" class="btn btn-sm btn-outline">Details</a>
+                                <a href="/invoice/{{ i.invoice_id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center muted">No invoice records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

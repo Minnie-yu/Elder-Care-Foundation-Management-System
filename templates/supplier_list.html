@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Suppliers | Elder Care System{% endblock %}
+{% block page_title %}Supplier Directory{% endblock %}
+{% block page_subtitle %}View supplier details, contact records, and supplier categories{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Suppliers</div>
+            <div class="stat-value">{{ suppliers|length if suppliers else 0 }}</div>
+            <div class="stat-note">Current registered supplier records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Module</div>
+            <div class="stat-value">Active</div>
+            <div class="stat-note">Supplier management enabled</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Search & Filter</h2>
+                <p class="section-subtitle">Search by supplier name, contact person, or email</p>
+            </div>
+            <div>
+                <a href="{{ url_for('supplier_new') }}" class="btn btn-primary">+ Add Supplier</a>
+                <a href="/export/suppliers" class="btn btn-secondary">Export CSV</a>
+            </div>
+        </div>
+
+        <form method="GET" class="toolbar">
+            <input type="text" name="search" value="{{ search_query or '' }}" placeholder="Search name / email / contact">
+
+            <select name="supplier_type">
+                <option value="">All Types</option>
+                <option value="Printing" {% if supplier_type == 'Printing' %}selected{% endif %}>Printing</option>
+                <option value="Stationery" {% if supplier_type == 'Stationery' %}selected{% endif %}>Stationery</option>
+                <option value="Care Package" {% if supplier_type == 'Care Package' %}selected{% endif %}>Care Package</option>
+                <option value="Digital Media" {% if supplier_type == 'Digital Media' %}selected{% endif %}>Digital Media</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('supplier_list') }}" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <h2 class="section-title">Supplier List</h2>
+
+        {% if suppliers %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in suppliers %}
+                    <tr>
+                        <td>#{{ s.supplier_id }}</td>
+                        <td><strong>{{ s.supplier_name }}</strong></td>
+                        <td>{{ s.contact_person or '-' }}</td>
+                        <td>{{ s.phone_number or '-' }}</td>
+                        <td>{{ s.email or '-' }}</td>
+                        <td>{{ s.supplier_type or '-' }}</td>
+                        <td>{{ s.address or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="muted">No suppliers found.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

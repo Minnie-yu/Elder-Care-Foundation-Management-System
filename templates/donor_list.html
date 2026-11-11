@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Donor Management{% endblock %}
+{% block page_title %}Donor Management{% endblock %}
+{% block page_subtitle %}View, search, filter, and manage donor records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <!-- 顶部统计卡片（删除了婚姻和孩子的统计，使其更清爽） -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Donors</div>
+            <div class="stat-value">{{ donor_overview.total_donors or 0 }}</div>
+            <div class="stat-note">All donor records in database</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Displayed Results</div>
+            <div class="stat-value">{{ donors|length if donors else 0 }}</div>
+            <div class="stat-note">Records matching current filters</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Female Donors</div>
+            <div class="stat-value">{{ donor_overview.female_donors or 0 }}</div>
+            <div class="stat-note">Useful for demographic analysis</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Overlap with Staff</div>
+            <div class="stat-value">{{ staff_overlap_count }}</div>
+            <div class="stat-note">Donors who are also staff</div>
+        </div>
+    </div>
+
+    <!-- 搜索与导出栏 -->
+    <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center;">
+        <form method="GET" action="/donors" class="search-form" style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" name="search" placeholder="Search by name, email, phone, city..." value="{{ search_query }}">
+            
+            <select name="donor_type">
+                <option value="">All Types</option>
+                {% for dtype in donor_type_options %}
+                    <option value="{{ dtype }}" {% if donor_type_filter == dtype %}selected{% endif %}>{{ dtype }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="btn btn-primary">Search / Filter</button>
+            <a href="/donors" class="btn btn-outline">Clear</a>
+        </form>
+        
+        <div class="action-buttons" style="display: flex; gap: 10px;">
+            <a href="/donor/new" class="btn btn-success">+ Add Donor</a>
+            <!-- 这里调用新的万能导出接口 /export/donors -->
+            <a href="/export/donors" class="btn btn-secondary">Export CSV</a>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <!-- 添加了 card 类来恢复白色背景，根据你原来的截图，通常 table 会包在一个 card 里 -->
+    <div class="card table-container" style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        {% if donors %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Donor ID</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <!-- 去除了 Marital Status 和 Has Child 列 -->
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Type</th>
+                        <th>Country</th>
+                        <!-- 新增了 Received Gift 列 -->
+                        <th>Received Gift</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in donors %}
+                    <tr>
+                        <td>{{ d.donor_id }}</td>
+                        <td class="font-medium">{{ d.donor_name }}</td>
+                        <td>{{ d.gender or '-' }}</td>
+                        <td>{{ d.email or '-' }}</td>
+                        <td>{{ d.phone or '-' }}</td>
+                        <td>{{ d.city or '-' }}</td>
+                        <td>
+                            {% if d.donor_type %}
+                                <span class="tag tag-blue">{{ d.donor_type }}</span>
+                            {% else %}
+                                <span class="tag tag-gray">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ d.country or '-' }}</td>
+                        
+                        <!-- 渲染是否收到礼物的标识 -->
+                        <td>
+                            {% if d.received_gift == 1 %}
+                                <span class="tag tag-success" style="background-color: #10b981; color: white;">Yes</span>
+                            {% else %}
+                                <span class="tag tag-gray">No</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="inline-form">
+                                <a href="/donor/{{ d.donor_id }}" class="btn btn-sm btn-outline">Details</a>
+                                <a href="/donor/{{ d.donor_id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center;">
+            <p class="muted">No donor records found.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

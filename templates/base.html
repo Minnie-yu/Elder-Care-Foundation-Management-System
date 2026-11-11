@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Elder Care System{% endblock %}</title>
+    <meta http-equiv="Content-Language" content="en">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- English date picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}" lang="en">
+    {% set current_endpoint = request.endpoint or '' %}
+    {% set hide_sidebar = hide_sidebar | default(false) %}
+    {% set current_role = role_name | default('') %}
+    {% set current_user_name = current_user | default(session.get('staff_name', session.get('username', 'User'))) %}
+
+    <div class="app-shell {% if hide_sidebar %}no-sidebar{% endif %}">
+        {% if not hide_sidebar %}
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+            <div class="brand-logo-wrap">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Elder Care Logo" class="brand-logo">
+                <div class="brand-text">
+                    <div class="brand-title">Elder Care</div>
+                    <div class="brand-subtitle">Management System</div>
+                </div>
+            </div>
+        </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group-title">General</div>
+
+                <a href="/assistant"
+                    class="nav-link {% if current_endpoint == 'assistant_page' %}active{% endif %}">
+                     Assistant
+                </a>
+
+                <a href="/dashboard"
+                   class="nav-link {% if current_endpoint == 'dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+
+                <a href="/donors"
+                   class="nav-link {% if current_endpoint in ['donor_list', 'donor_profile', 'donor_new', 'donor_edit'] %}active{% endif %}">
+                    Donors
+                </a>
+
+                <a href="/staff"
+                   class="nav-link {% if current_endpoint == 'staff_page' %}active{% endif %}">
+                    Staff
+                </a>
+
+                {% if current_role in ['Administrator', 'Event Coordinator'] %}
+                <div class="nav-group-title">Events</div>
+
+                <a href="/events"
+                   class="nav-link {% if current_endpoint in ['event_list', 'event_detail', 'event_new', 'event_edit', 'event_assign_donor', 'event_assign_staff_page'] %}active{% endif %}">
+                    Events
+                </a>
+                {% endif %}
+
+                {% if current_role in ['Administrator', 'Finance', 'Staff'] %}
+                <div class="nav-group-title">Operations</div>
+
+                <a href="/suppliers"
+                   class="nav-link {% if current_endpoint == 'supplier_list' %}active{% endif %}">
+                    Suppliers
+                </a>
+
+                <a href="/inventory"
+                   class="nav-link {% if current_endpoint in ['inventory_list', 'inventory_new', 'inventory_edit'] %}active{% endif %}">
+                    Inventory
+                </a>
+
+                <a href="/gifts"
+                   class="nav-link {% if current_endpoint == 'gift_list' %}active{% endif %}">
+                    Gifts
+                </a>
+                {% endif %}
+
+                {% if current_role in ['Administrator', 'Finance'] %}
+                <div class="nav-group-title">Finance</div>
+
+                <a href="/invoices"
+                   class="nav-link {% if current_endpoint in ['invoice_list', 'invoice_detail', 'invoice_new', 'invoice_edit'] %}active{% endif %}">
+                    Invoices
+                </a>
+
+                <a href="/payments"
+                   class="nav-link {% if current_endpoint in ['payment_list', 'payment_new', 'payment_edit'] %}active{% endif %}">
+                    Payments
+                </a>
+
+                <a href="/reports"
+                   class="nav-link {% if current_endpoint == 'reports' %}active{% endif %}">
+                    Reports
+                </a>
+                {% endif %}
+            </nav>
+        </aside>
+        {% endif %}
+
+        <div class="main-area">
+            {% if not hide_sidebar %}
+            <header class="topbar">
+                <div>
+                    <h1 class="page-title">{% block page_title %}Elder Care System{% endblock %}</h1>
+                    <p class="page-subtitle">{% block page_subtitle %}Manage donors, events, operations and finance{% endblock %}</p>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="user-pill">
+                        <div class="user-name">{{ current_user_name }}</div>
+                        <div class="user-role">{{ current_role }}</div>
+                    </div>
+
+                    <div class="topbar-actions">
+                        {% block topbar_actions %}
+                        <a href="/logout" class="btn btn-danger">Log Out</a>
+                        {% endblock %}
+                    </div>
+                </div>
+            </header>
+            {% endif %}
+
+            <main class="page-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- English date picker library -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.documentElement.lang = "en";
+        document.body.setAttribute("lang", "en");
+
+        // 1. Replace native date pickers with English flatpickr
+        document.querySelectorAll('input[type="date"]').forEach(function (input) {
+            if (input.dataset.flatpickrApplied === "1") return;
+
+            input.dataset.flatpickrApplied = "1";
+
+            flatpickr(input, {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                locale: "default"
+            });
+        });
+
+        // 2. Global English validation messages
+        function getFieldLabel(field) {
+            if (field.id) {
+                const explicitLabel = document.querySelector('label[for="' + field.id + '"]');
+                if (explicitLabel) return explicitLabel.textContent.trim().replace(/\*$/, '');
+            }
+
+            const groupLabel = field.closest('.form-group')?.querySelector('.form-label, label');
+            if (groupLabel) return groupLabel.textContent.trim().replace(/\*$/, '');
+
+            if (field.getAttribute("placeholder")) return field.getAttribute("placeholder").trim();
+            if (field.name) return field.name.replace(/_/g, ' ').trim();
+
+            return "this field";
+        }
+
+        function setEnglishValidationMessage(field) {
+            const label = getFieldLabel(field);
+
+            if (field.validity.valueMissing) {
+                field.setCustomValidity("Please fill out " + label + ".");
+            } else if (field.validity.typeMismatch) {
+                if (field.type === "email") {
+                    field.setCustomValidity("Please enter a valid email address.");
+                } else if (field.type === "url") {
+                    field.setCustomValidity("Please enter a valid URL.");
+                } else {
+                    field.setCustomValidity("Please enter a valid value for " + label + ".");
+                }
+            } else if (field.validity.patternMismatch) {
+                field.setCustomValidity("Please match the requested format for " + label + ".");
+            } else if (field.validity.tooShort) {
+                field.setCustomValidity(label + " is too short.");
+            } else if (field.validity.tooLong) {
+                field.setCustomValidity(label + " is too long.");
+            } else if (field.validity.rangeUnderflow) {
+                field.setCustomValidity("The value for " + label + " is too small.");
+            } else if (field.validity.rangeOverflow) {
+                field.setCustomValidity("The value for " + label + " is too large.");
+            } else if (field.validity.stepMismatch) {
+                field.setCustomValidity("Please enter a valid step value for " + label + ".");
+            } else if (field.validity.badInput) {
+                field.setCustomValidity("Please enter a valid value for " + label + ".");
+            } else {
+                field.setCustomValidity("");
+            }
+        }
+
+        document.querySelectorAll("input, select, textarea").forEach(function (field) {
+            field.addEventListener("invalid", function () {
+                setEnglishValidationMessage(field);
+            });
+
+            field.addEventListener("input", function () {
+                field.setCustomValidity("");
+            });
+
+            field.addEventListener("change", function () {
+                field.setCustomValidity("");
+            });
+        });
+    });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

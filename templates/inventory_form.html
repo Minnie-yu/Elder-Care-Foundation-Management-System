@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Inventory' if form_mode == 'edit' else 'Add Inventory' }} | Elder Care System{% endblock %}
+{% block page_title %}{{ 'Edit Inventory Item' if form_mode == 'edit' else 'Add Inventory Item' }}{% endblock %}
+{% block page_subtitle %}Create or update inventory records and link them to a supplier{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Inventory Form</h2>
+                <p class="section-subtitle">Use database field names directly for easier backend integration</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label" for="item_name">Item Name</label>
+                    <input
+                        type="text"
+                        id="item_name"
+                        name="item_name"
+                        value="{{ inventory_info.item_name if inventory_info else '' }}"
+                        placeholder="Enter item name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="quantities">Quantities</label>
+                    <input
+                        type="number"
+                        id="quantities"
+                        name="quantities"
+                        value="{{ inventory_info.quantities if inventory_info else '' }}"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="unit_cost">Unit Cost</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="unit_cost"
+                        name="unit_cost"
+                        value="{{ inventory_info.unit_cost if inventory_info else '' }}"
+                        min="0"
+                    >
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="supplier_id">Supplier</label>
+                    <select id="supplier_id" name="supplier_id" required>
+                        <option value="">Select Supplier</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.supplier_id }}"
+                            {% if inventory_info and inventory_info.supplier_id == s.supplier_id %}selected{% endif %}>
+                            {{ s.supplier_name }}{% if s.supplier_type %} — {{ s.supplier_type }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('inventory_list') }}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Update Inventory' if form_mode == 'edit' else 'Create Inventory' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

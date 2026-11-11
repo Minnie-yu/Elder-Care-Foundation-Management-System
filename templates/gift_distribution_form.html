@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Gift | Elder Care System{% endblock %}
+{% block page_title %}Assign Gift to Donor{% endblock %}
+{% block page_subtitle %}Record which gift is distributed to which donor{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Gift Distribution Form</h2>
+                <p class="section-subtitle">
+                    This form creates a gift distribution record and reduces the linked inventory quantity.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="card" style="margin-bottom: 16px;">
+            <p style="color: #dc2626; font-weight: 700;">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label" for="gift_id">Gift</label>
+                    <select id="gift_id" name="gift_id" required>
+                        <option value="">Select Gift</option>
+                        {% for g in gifts %}
+                        <option value="{{ g.gift_id }}">
+                            {{ g.gift_name }}
+                            {% if g.gift_category %} — {{ g.gift_category }}{% endif %}
+                            — Available: {{ g.inventory_quantity }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="donor_id">Donor</label>
+                    <select id="donor_id" name="donor_id" required>
+                        <option value="">Select Donor</option>
+                        {% for d in donors %}
+                        <option value="{{ d.donor_id }}">
+                            {{ d.donor_name }}{% if d.email %} — {{ d.email }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="distribution_date">Distribution Date</label>
+                    <input type="date" id="distribution_date" name="distribution_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="quantity">Quantity</label>
+                    <input type="number" min="1" id="quantity" name="quantity" value="1" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label" for="distribution_reason">Distribution Reason</label>
+                    <textarea id="distribution_reason" name="distribution_reason" placeholder="Enter reason, e.g. Thank-you gift for donation"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('gift_list') }}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Distribution</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

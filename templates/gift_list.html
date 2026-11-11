@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Gifts | Elder Care System{% endblock %}
+{% block page_title %}Gift Catalogue{% endblock %}
+{% block page_subtitle %}Manage gifts, inventory links, and donor gift distribution records{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Gifts</div>
+            <div class="stat-value">{{ gifts|length if gifts else 0 }}</div>
+            <div class="stat-note">Gift records in the system</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Distributed</div>
+            <div class="stat-value">
+                {{ gifts | sum(attribute='total_distributed') if gifts else 0 }}
+            </div>
+            <div class="stat-note">Total gifts sent to donors</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Inventory Linked</div>
+            <div class="stat-value">
+                {{ gifts | selectattr('item_id') | list | length if gifts else 0 }}
+            </div>
+            <div class="stat-note">Gifts connected with inventory items</div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Search & Actions</h2>
+                <p class="section-subtitle">Search by gift name, category, inventory item, or supplier</p>
+            </div>
+            <div class="form-actions">
+                <a href="{{ url_for('gift_distribute') }}" class="btn btn-secondary">Assign Gift to Donor</a>
+                <a href="{{ url_for('gift_new') }}" class="btn btn-primary">+ Add Gift</a>
+            </div>
+        </div>
+
+        <form method="GET" class="toolbar">
+            <input type="text" name="search" value="{{ search_query or '' }}" placeholder="Search gift / category / inventory / supplier">
+
+            <select name="gift_category">
+                <option value="">All Categories</option>
+                <option value="Book" {% if gift_category == 'Book' %}selected{% endif %}>Book</option>
+                <option value="Accessory" {% if gift_category == 'Accessory' %}selected{% endif %}>Accessory</option>
+                <option value="Stationery" {% if gift_category == 'Stationery' %}selected{% endif %}>Stationery</option>
+                <option value="Package" {% if gift_category == 'Package' %}selected{% endif %}>Package</option>
+                <option value="Digital" {% if gift_category == 'Digital' %}selected{% endif %}>Digital</option>
+                <option value="Care" {% if gift_category == 'Care' %}selected{% endif %}>Care</option>
+                <option value="Other" {% if gift_category == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('gift_list') }}" class="btn btn-outline">Reset</a>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Gift List</h2>
+                <p class="section-subtitle">Overview of gifts and linked inventory records</p>
+            </div>
+        </div>
+
+        {% if gifts %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Gift ID</th>
+                        <th>Gift</th>
+                        <th>Category</th>
+                        <th>Value</th>
+                        <th>Inventory Item</th>
+                        <th>Inventory Qty</th>
+                        <th>Distributed</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in gifts %}
+                    <tr>
+                        <td>#{{ g.gift_id }}</td>
+                        <td><strong>{{ g.gift_name }}</strong></td>
+                        <td>{{ g.gift_category or '-' }}</td>
+                        <td>${{ '%.2f'|format(g.gift_value) }}</td>
+                        <td>
+                            <strong>{{ g.item_name }}</strong><br>
+                            <span class="muted">Item ID: {{ g.item_id or '-' }}</span><br>
+                            <span class="muted">Supplier: {{ g.supplier_name or '-' }}</span>
+                        </td>
+                        <td>{{ g.inventory_quantity }}</td>
+                        <td>{{ g.total_distributed }}</td>
+                        <td>
+                            <a href="{{ url_for('gift_detail', gift_id=g.gift_id) }}" class="btn btn-secondary btn-sm">
+    Detail
+</a>
+
+<form method="POST"
+      action="{{ url_for('gift_delete', gift_id=g.gift_id) }}"
+      onsubmit="return confirm('Are you sure you want to delete this gift and all related distribution records?');"
+      style="display:inline;">
+    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+</form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card">
+            <p class="muted">No gifts found.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
