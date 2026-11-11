@@ -79,7 +79,7 @@ Add anonymized screenshots of the dashboard and key modules to a `docs/screensho
 
 ## Project attribution
 
-This is a collaborative student project. The source ZIP retained a link to the [original team repository](https://github.com/lxiaoran24-lab/elder_care). This portfolio repository documents my contributions and the project work. Please preserve appropriate credit to other contributors.
+This is a collaborative student project. This portfolio repository documents my contributions and the project work. Please preserve appropriate credit to other contributors.
 
 ## Important security notes
 
